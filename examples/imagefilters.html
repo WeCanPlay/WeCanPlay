@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test Image filters</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	    <link href="ressources/style/bootstrap.min.css" rel="stylesheet">
+	    <link href="ressources/style/wecanplay.css" rel="stylesheet">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script src="build-WCP.js"></script>		
+		<style>
+		input[type="range"] {
+			-webkit-appearance: none;
+			background-color: silver;
+			width: 200px;
+			height:20px;
+			display: block;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			background-color: #666;
+			opacity: 0.5;
+			width: 10px;
+			height: 26px;
+		}
+		</style>
+    </head>
+    <body>
+	    <nav class="navbar navbar-fixed-top">
+	      <div class="navbar-inner">
+	        <div class="container">
+	            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+	                <span class="icon-bar"></span>
+	                <span class="icon-bar"></span>
+	                <span class="icon-bar"></span>
+	            </a>
+	            <a class="brand" href="http://www.wecanplay.fr/"><img src="ressources/style/logo_wecanplay.png" width="50" />WeCanPlay</a>
+	            <div class="nav-collapse">
+	            <ul class="nav">
+	                <li><a href="#">Image filters</a></li>
+	            </ul>
+	            </div><!--/.nav-collapse -->
+	        </div>
+	      </div>
+	    </nav>
+		
+		<div class="container">
+	        <div class="jumbotron subhead">
+				<h1>Image filters</h1>
+				<div id="filter">
+					<button id="blur" class="btn" data-type='range' data-min="1" data-max="6" data-default="6" data-step="1">Blur</button>
+					<button id="brightness" class="btn" data-type='range' data-min="-150" data-max="150" data-default="120" data-step="5">Brightness</button>
+					<button id="colorAdjust" class="btn" data-type='color' data-r="0" data-g="255" data-b="0" >colorAdjust</button>
+					<button id="contrast" class="btn" data-type='range' data-min="-1" data-max="3" data-default="3" data-step="0.1">Contrast</button>
+					<button id="grayscale" class="btn" data-type='toggle'>Grayscale</button>
+					<button id="hue" class="btn" data-type='range' data-min="-180" data-max="180" data-default="100" data-step="5">Hue</button>
+					<button id="invert" class="btn" data-type='toggle'>Invert</button>
+					<button id="lightness" class="btn" data-type='range' data-min="-100" data-max="100" data-default="80" data-step="5">Lightness</button>
+					<button id="mosaic" class="btn" data-type='range' data-min="2" data-max="20" data-default="5" data-step="1">Mosaic</button>
+					<button id="saturation" class="btn" data-type='range' data-min="-100" data-max="100" data-default="-70" data-step="5">Saturation</button>
+					<button id="sepia" class="btn" data-type='toggle'>Sepia</button>
+					<button id="solarize" class="btn" data-type='toggle'>Solarize</button>
+					<button id="threshold" class="btn" data-type='range' data-min="0" data-max="254" data-default="160" data-step="5">Threshold</button>
+				</div>
+				<div id="foption" style="text-align: center; margin-top: 10px">Choose a filter</div>
+					<canvas id="c1"></canvas>
+<script>	
+	WCP.setCanvas("c1", 940, 705);
+	WCP.log(true);
+	
+	var sp;
+	WCP.Assets.add('img','ressources/Desert.jpg');
+	
+	var main = new WCP.View({
+		init : function() {
+			applyFilter();
+		},
+		loop: function () {
+			sp.draw();
+		}
+	});
+
+	function applyFilter(filter, value) {
+		console.time('filter '+filter);
+		sp = (arguments.length == 0) ? new WCP.Sprite(WCP.Assets.get('img'), 0, 0) : new WCP.Sprite(WCP.Filter[filter](WCP.Assets.get('img'), value), 0, 0);
+		console.timeEnd('filter '+filter);
+	}
+	
+	WCP.Assets.load('*', null, function (){
+		main.start();
+	});
+	
+	var fo = $("#foption");
+	var butt = $("#filter button");
+	butt.click(function (){
+		butt.removeClass("btn-primary");
+		$(this).addClass("btn-primary");
+		var f = $(this).attr("id");
+		if ($(this).data('type') == 'range') {
+			var r = "<input id='range' type='range' min='"+$(this).data('min')+"' max='"+$(this).data('max')+"' step='"+$(this).data('step')+"' value='"+$(this).data('default')+"' />";
+			applyFilter(f, $(r).val());
+			fo.html("<table><tr><td>"+r+"</td></tr><tr><td>Value : <span id='rangevalue'>"+$(this).data('default')+"</span></td></tr></table>");
+			var r2 = $("#range");
+			r2.change(function() { $("#rangevalue").html($(this).val())});
+			r2.mouseup(function() {applyFilter(f, $(this).val())});
+		} else if ($(this).data('type') == 'toggle'){
+			applyFilter(f, null);
+			//var t = $("<button class='btn' data-toggle='button'>Enable</button>");
+			fo.html("Choose a filter");
+		} else if ($(this).data('type') == 'color') {
+			var r = "<input id='r' type='range' min='0' max='255' step='1' value='"+$(this).data('r')+"' />";
+			var g = "<input id='g' type='range' min='0' max='255' step='1' value='"+$(this).data('g')+"' />";
+			var b = "<input id='b' type='range' min='0' max='255' step='1' value='"+$(this).data('b')+"' />";
+			applyFilter('colorAdjust', [$(r).val(), $(g).val(), $(b).val()]);
+			fo.html("<table><tr><td>"+r+"</td><td rowspan='3'><div id='color' style='width: 130px; height: 130px;background-color: rgb("+$(r).val()+","+$(g).val()+","+$(b).val()+")'></div></td></tr><tr><td>"+g+"</tr></td><tr><td>"+b+"</tr></td></table>");
+			var color = $("#color");
+			var r2 = $("#r");
+			var g2 = $("#g");
+			var b2 = $("#b");
+			$("#r, #g, #b").change(function(){color.css("background-color", "rgb("+r2.val()+","+g2.val()+","+b2.val()+")")});
+			$("#r, #g, #b").mouseup(function(){applyFilter('colorAdjust', [r2.val(), g2.val(), b2.val()]);});
+		}
+	});
+
+</script>
+			</div>
+		</div>
+    </body>
+</html>

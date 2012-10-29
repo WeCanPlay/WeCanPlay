@@ -1,0 +1,150 @@
+body {
+	padding-top: 60px;
+	padding-bottom: 40px;
+	background: #fff url('background.png') 0 -9px repeat-x;
+}
+canvas {
+  display: block;
+  background: #fff;
+  border: 2px solid #BBB;
+  box-shadow: 0 0 5px #999;
+  margin: 30px auto;
+}
+
+.navbar .nav {
+	font-size: 18px;
+}
+
+.navbar .nav > li > a {
+	line-height: 44px;
+}
+
+.myhero {
+  margin-bottom: 30px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+}
+.myhero h1 {
+  margin-bottom: 0;
+  font-size: 60px;
+  line-height: 1;
+  color: inherit;
+  letter-spacing: -1px;
+}
+#catch-phrase {
+  font-size: 25px;
+  font-weight: 200;
+  line-height: 27px;
+  color: inherit;
+}
+.myhero p {
+  font-size: 18px;
+  font-weight: 200;
+  line-height: 27px;
+  color: inherit;
+}
+		
+.jumbotron {
+  position: relative;
+}
+.jumbotron h1 {
+  margin-bottom: 9px;
+  font-size: 81px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.jumbotron p {
+  margin-bottom: 18px;
+  font-weight: 300;
+}
+.jumbotron .btn-large {
+  font-size: 20px;
+  font-weight: normal;
+  padding: 14px 24px;
+  margin-right: 10px;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+.jumbotron .btn-large small {
+  font-size: 14px;
+}
+
+/* Masthead (docs home) */
+.masthead {
+  padding-top: 70px;
+  margin-bottom: 72px;
+}
+.masthead h1,
+.masthead p {
+  text-align: center;
+}
+.masthead h1 {
+  margin-bottom: 18px;
+}
+.masthead p {
+  margin-left: 5%;
+  margin-right: 5%;
+  font-size: 30px;
+  line-height: 36px;
+}
+
+#features, #more {
+	padding-top: 30px;
+	margin-bottom: 45px;
+}
+
+#features .row {
+  margin-bottom: 9px;
+}
+
+#features .subtitle, #more .subtitle{
+	margin: -18px 0 27px;
+	font-size: 20px;
+	font-weight: 300;
+	line-height: 24px;
+	color: #999;
+	text-align: center;
+}
+
+#features h1, #more h1 {
+  margin: 36px 0 27px;
+  font-size: 42px;
+  font-weight: 300;
+  text-align: center;
+}
+#features h2,
+#features h3 {
+  font-weight: 300;
+}
+#features h2 {
+  font-size: 26px;
+}
+#features p {
+  margin-right: 10px;
+}
+#features .bs-icon {
+  float: left;
+  margin: 7px 10px 0 0;
+  opacity: .8;
+}
+#features .small-bs-icon {
+  float: left;
+  margin: 4px 5px 0 0;
+}
+
+.subhead {
+  padding-top: 40px;
+  margin-bottom: 9px;
+}
+.subhead h1 {
+  font-size: 54px;
+}
+.subhead .subtitle {
+	color: #999;
+	font-size: 20px;
+	font-weight: 300;
+	line-height: 24px;
+}

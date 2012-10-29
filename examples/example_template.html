@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebCanPlay - {TITLE}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Wecanplay">
+    
+    <link href="ressources/style/bootstrap.min.css" rel="stylesheet">
+    <link href="ressources/style/wecanplay.css" rel="stylesheet">
+
+    <script src="build-WCP.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="http://www.wecanplay.fr/"><img src="ressources/style/logo_wecanplay.png" width="50" />WeCanPlay</a>
+            <div class="nav-collapse">
+            <ul class="nav">
+                <li><a href="#">{TITLE}</a></li>
+            </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </nav>
+
+    
+    <div class="container">
+        <div class="jumbotron subhead">
+            <h1>{TITLE}</h1>
+            <p class="subtitle">{SUBTITLE}</p>
+                <canvas id="canvas"></canvas>
+            <div class='well'>
+                {Some explain}
+            </div>
+       </div>
+   </div>
+<script>
+
+var CAN_X = 935,
+CAN_Y = 500;
+
+WCP.setCanvas("canvas", CAN_X, CAN_Y);
+
+WCP.Assets.add({
+    path: './',
+    assets: {
+        'logowcp': 'ressources/style/logo_wecanplay.png'
+    }
+});
+
+var logo;
+
+var mainView = new WCP.View({
+    init: function () {
+        
+        logo = new WCP.Sprite(WCP.Assets.get('logowcp'), (CAN_X / 2 - 150), (CAN_Y / 2 - 150) );
+        this.add(logo);
+        
+    },
+    loop: function () {
+
+    }
+});
+
+WCP.Assets.load('*', function(t, l, e){
+    WCP.Draw.rect(0, (CAN_Y / 2) - 3, (CAN_X / t) * (l + e), 3).draw();
+}, function(){
+    mainView.start();
+});
+
+</script>
+</body>
+</html>
