@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebCanPlay - Bouncing Ball</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Wecanplay">
+    
+    <link href="ressources/style/bootstrap.min.css" rel="stylesheet">
+    <link href="ressources/style/wecanplay.css" rel="stylesheet">
+
+    <script src="build-WCP.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="http://www.wecanplay.fr/"><img src="ressources/style/logo_wecanplay.png" width="50" />WeCanPlay</a>
+            <div class="nav-collapse">
+            <ul class="nav">
+                <li><a href="#">Bouncing Ball</a></li>
+            </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </nav>
+
+    
+    <div class="container">
+        <div class="jumbotron subhead">
+            <h1>Bouncing Ball</h1>
+            <p class="subtitle">An sprite performance demo</p>
+            <div class='row'>
+                <div class='span5'>
+                    <div class="btn-group">
+                        <button class="btn" id="add5">+ 5 balls</button>
+                        <button class="btn" id="add10">+ 10 balls</button>
+                        <button class="btn" id="add25">+ 25 balls</button>
+                        <button class="btn" id="add50">+ 50 balls</button>
+                    </div>
+                </div>
+                <div class='span2'>
+                    FPS <span id="infos-fps" class='badge badge-success'>-</span>
+                </div>
+                <div class='span2'>
+                    Balls count <span id="infos-balls" class='badge badge-info'>-</span>
+                </div>
+            </div>
+            <canvas id="canvas"></canvas>
+            <div class='well'>
+                This demo allows you to test the performance by displaying a large number of sprite.
+                We use one image to which we applied a filter for a different color.
+                Mouvement are calculated with vetors function offered by WCP.
+            </div>
+       </div>
+   </div>
+<script>
+
+var color = [
+    WCP.Filter.AQUA,
+    WCP.Filter.BLUE,
+    WCP.Filter.FUCHSIA,
+    WCP.Filter.GRAY,
+    WCP.Filter.GREEN,
+    WCP.Filter.LIME,
+    WCP.Filter.MAROON,
+    WCP.Filter.NAVY,
+    WCP.Filter.OLIVE,
+    WCP.Filter.PURPLE,
+    WCP.Filter.RED,
+    WCP.Filter.SILVER,
+    WCP.Filter.TEAL,
+    WCP.Filter.WHITE,
+    WCP.Filter.YELLOW
+];
+
+var numBalls = 0;
+
+function Ball() {
+    this.sprite = new WCP.Sprite(WCP.Filter.colorAdjust(WCP.Assets.get('ball'), color[WCP.random(0, color.length-1)]));
+    this.scale = WCP.random(10, 30) / 100;
+    this.mass = this.scale * 10;
+
+    this.sprite.width *= this.scale;
+    this.sprite.height *= this.scale;
+
+    this.sprite.x = (WCP.width - this.sprite.width) / 2;
+    this.sprite.y = (WCP.height - this.sprite.height) / 2;
+
+    // Random angle between [0, 2 * PI]
+    this.angle = Math.PI * 2 * Math.random();
+
+    // speed
+    var v = WCP.random(200, 400);
+    this.vx = v * Math.cos(this.angle);
+    this.vy = v * Math.sin(this.angle);
+
+    this.id = listBalls.length;
+    numBalls++;
+
+    listBalls.push(this);
+}
+
+Ball.prototype.update = function (elapsed) {
+    elapsed = elapsed / 1000; // in Seconds
+
+    this.sprite.x += this.vx * elapsed;
+    this.sprite.y += this.vy * elapsed;
+
+    if (this.sprite.x < 0) {
+        this.vx *= -1;
+        this.sprite.x = 0;
+    }
+
+    if (this.sprite.y < 0) {
+        this.vy *= -1;
+        this.sprite.y = 0;
+    }
+
+    if ((this.sprite.x + this.sprite.width) > WCP.width) {
+        this.vx *= -1;
+        this.sprite.x = WCP.width - this.sprite.width;
+    }
+
+    if ((this.sprite.y + this.sprite.height) > WCP.height) {
+        this.vy *= -1;
+        this.sprite.y = WCP.height - this.sprite.height;
+    }
+}
+
+function ballCollision(ball1, ball2) {
+    var dist =
+        (ball1.sprite.x - ball2.sprite.x) * (ball1.sprite.x - ball2.sprite.x)
+        + (ball1.sprite.y - ball2.sprite.y) * (ball1.sprite.y - ball2.sprite.y);
+    var limit = ((ball1.sprite.width + ball2.sprite.width) / 2);
+    limit = limit * limit;
+
+    if (dist > limit) {
+        return (false);
+    }
+
+    // if (second) return;
+    // second = true;
+
+    var v1 = new WCP.Vector(ball1.vx, ball1.vy);
+    var v2 = new WCP.Vector(ball2.vx, ball2.vy);
+    // console.log(v1, v2);
+    // normal unit vector
+    var normal = new WCP.Vector(ball1.sprite.x, ball1.sprite.y, ball2.sprite.x, ball2.sprite.y);
+
+    // Bug... sometimes it happens : it means the balls are exactly at the same place...
+    if (normal.norm() == 0) {
+        return (true); // just report the collision, impossible to calculate (possible but complicated)
+    }
+
+    normal = normal.normalize();
+    // tangent unit vector
+    var tangent = normal.tangent();
+
+    // push the 2 balls back (at the exact collision point)
+    var d = ((ball1.sprite.width + ball2.sprite.width) / 2) - Math.sqrt(dist);
+
+    // console.log('------ pushing');
+    // console.log(normal.mult(d * (v1n / (v1n + v2n))), d, v1n / (v1n + v2n));
+    var push1 = normal.mult(d * (ball1.mass / (ball1.mass + ball2.mass)));
+    var push2 = normal.mult(d * (ball2.mass / (ball1.mass + ball2.mass)));
+    // console.log('dist before: ', new WCP.Vector(ball1.sprite.x, ball1.sprite.y, ball2.sprite.x, ball2.sprite.y).norm());
+
+    ball1.sprite.x -= push1.x;
+    ball1.sprite.y -= push1.y;
+    ball2.sprite.x += push2.x;
+    ball2.sprite.y += push2.y;
+
+    // check distance between the 2 balls
+    // console.log('d   : ', d);
+    // console.log('push: ', push1, push2);
+    // console.log('dist: ', new WCP.Vector(ball1.sprite.x, ball1.sprite.y, ball2.sprite.x, ball2.sprite.y).norm());
+
+    // calculate the new velocity vectors
+    var v1t = v1.dot(tangent);
+    var v1n = v1.dot(normal);
+    var v2t = v2.dot(tangent);
+    var v2n = v2.dot(normal);
+
+    var res_v1n = normal.mult((v1n * (ball1.mass - ball2.mass) + 2 * ball2.mass * v2n) / (ball1.mass + ball2.mass));
+    var res_v1t = tangent.mult(v1t);
+    var res_v2n = normal.mult((v2n * (ball2.mass - ball1.mass) + 2 * ball1.mass * v1n) / (ball1.mass + ball2.mass));
+    var res_v2t = tangent.mult(v2t);
+
+    var res_v1 = res_v1n.add(res_v1t);
+    var res_v2 = res_v2n.add(res_v2t);
+
+    ball1.vx = res_v1.x;
+    ball1.vy = res_v1.y;
+    ball2.vx = res_v2.x;
+    ball2.vy = res_v2.y;
+
+    return (true);
+}
+
+var CAN_X = 935,
+CAN_Y = 500;
+
+WCP.setCanvas("canvas", CAN_X, CAN_Y);
+
+WCP.Assets.add({
+    path: './',
+    assets: {
+        'ball': 'ressources/soccer-ball.png'
+    }
+});
+
+var logo;
+
+var mainView = new WCP.View({
+    init: function () {
+        
+        maxBalls = 10;
+        numBalls = 0;
+        listBalls = [];
+
+        var ball1 = new Ball();
+
+        this.add(ball1.sprite);
+
+        this.ballSpawningInt = WCP.setInterval(500, function () {
+            if (numBalls < maxBalls) {
+                WCP.add((new Ball()).sprite);
+            } else {
+                WCP.clearInterval(this.ballSpawningInt);
+            }
+        });
+        
+    },
+    loop: function () {
+        var elapsed = this.elapsed();
+
+        for (var i = 0; i < listBalls.length; i++) {
+            if (listBalls[i]) {
+                listBalls[i].update(elapsed);
+            }
+        }
+
+        // Collision detection
+        var collided = {};
+
+        for (i = 0; i < listBalls.length; i++) {
+            if (listBalls[i]) {
+                for (var u = i; u < listBalls.length; u++) {
+                    if (i !== u && listBalls[u]/* && !collided[i+'.'+u]*/) {
+                        var b1 = listBalls[i];
+                        var b2 = listBalls[u];
+
+                        if (ballCollision(b1, b2)) {
+                            collided[i+'.'+u] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+});
+
+function addBalls(n) {
+    if (mainView.active) {
+        for (var i = 0; i < n; i++) {
+            mainView.add((new Ball()).sprite);
+        }
+    }
+}
+
+WCP.Assets.load('*', null, function(){
+    mainView.start();
+});
+
+setInterval(function () {
+    document.getElementById('infos-fps').innerHTML = Math.round(WCP.getRealFps());
+    document.getElementById('infos-balls').innerHTML = numBalls;
+}, 250);
+
+document.getElementById('add5').addEventListener('click', function() {
+    addBalls(5);
+});
+document.getElementById('add10').addEventListener('click', function() {
+    addBalls(10);
+});
+document.getElementById('add25').addEventListener('click', function() {
+    addBalls(25);
+});
+document.getElementById('add50').addEventListener('click', function() {
+    addBalls(50);
+});
+
+
+
+</script>
+</body>
+</html>
