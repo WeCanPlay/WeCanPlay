@@ -27,7 +27,7 @@
             var type = asset.path[j].match(/\.[0-9a-z]+$/);
             if (type.length) {
                 type = type[0];
-                var mime = (type === '.mp3') ? 'audio/mp3' : (type === '.ogg') ? 'audio/mp3' : undefined;
+                var mime = (type === '.mp3') ? 'audio/mp3' : (type === '.ogg') ? 'audio/ogg' : undefined;
                 if (mime) {
                     if (test.canPlayType(mime) !== "") {
                         var a  = new Audio();
