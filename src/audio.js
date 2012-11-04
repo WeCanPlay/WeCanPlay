@@ -250,7 +250,7 @@
 
     SoundManager.prototype.sound = function (audio, params) {
         var snd = new SoundEntity(audio, params);
-        if (params.id) {
+        if (params && params.id) {
             this.sounds[params.id] = snd;
         } else if (snd.src) {
             this.sounds[snd.src] = snd;
@@ -285,6 +285,12 @@
             }
         }
     };
+    
+    SoundManager.prototype.play = function(audio) {
+        var snd = new SoundEntity(audio, params);
+        snd.play();
+        return snd;
+    }
 
     SoundManager.prototype.shutDown = function () {
         var i;
