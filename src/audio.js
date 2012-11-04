@@ -143,7 +143,7 @@
     * @return Audio.currentTime
     */
     SoundEntity.prototype.time = function (t) {
-        if (t >= 0) {
+        if (t !== 'undefined' && t >= 0) {
             this.sound.currentTime = t;
         }
         return this.sound.currentTime;
@@ -191,17 +191,15 @@
 
     Channel.prototype.setLimit = function (limit) {
         this.limit = limit;
+        this.sounds.length = 0;
         while (this.sounds.length < this.limit) {
             this.clone();
         }
     };
 
     Channel.prototype.getNew = function () {
-        if (this.audio.src) {
-            return new SoundEntity(this.audio.src, this.params);
-        } else {
-            return false;
-        }
+        var audio = new Audio(this.audio.src);
+        return new SoundEntity(audio, this.params);
     };
 
     /**
@@ -217,10 +215,7 @@
     Channel.prototype.play = function () {
         var i;
         for (i = 0; i < this.sounds.length - 1;   i++) {
-            if (this.sounds[i].time() === this.sounds[i].duration()) {
-                this.sounds[i].time(0);
-            }
-            if (this.sounds[i].paused()) {
+            if (this.sounds[i].sound.currentTime == 0 || this.sounds[i].sound.currentTime == this.sounds[i].sound.duration) {
                 this.sounds[i].play();
                 return;
             }
