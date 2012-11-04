@@ -9,6 +9,50 @@
 (function (WCP) {
     "use strict";
     
+    function Shape() {
+    }
+    
+    Shape.prototype = new WCP.Drawable();
+    
+    Shape.prototype.buildPath = function(ctx) {
+        throw new Error("You have to override the buildPath(ctx) method");
+    }
+        
+	Shape.prototype.draw = function (ctx) {
+        if (!ctx) {
+            ctx = WCP.Draw.ctx
+        }
+        ctx.save();
+        ctx.beginPath();
+        this.buildPath(ctx);
+        for (var opt in this.style) {
+            ctx[opt.toString()] = this.style[opt];
+        }
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+//		WCP.Draw.draw(this.style);
+        ctx.restore();
+	};
+
+    Shape.prototype.isPointInPath = function (x, y, ctx) {
+        if (!ctx) {
+            ctx = WCP.Draw.ctx
+        }        
+        ctx.save();
+        ctx.beginPath();
+        this.buildPath(ctx);
+        for (var opt in this.style) {
+            ctx[opt.toString()] = this.style[opt];
+        }
+        ctx.fill();
+        ctx.stroke();
+        var pointInPath = ctx.isPointInPath(x,y);
+        ctx.closePath();
+        ctx.restore();
+        return pointInPath;
+    }
+    
     function Draw() {
 		
         this.styles = {};
@@ -32,12 +76,15 @@
         this.ctx = context;
     };
     
-	Draw.prototype.draw = function (style) {
+	Draw.prototype.draw = function (ctx, style) {
+        if (!ctx) {
+            ctx = this.ctx;
+       }
 		for (var opt in style) {
-            this.ctx[opt.toString()] = style[opt];
+            ctx[opt.toString()] = style[opt];
         }
-        this.ctx.fill();
-        this.ctx.stroke();
+        ctx.fill();
+        ctx.stroke();
 	};
 
 	
@@ -91,16 +138,16 @@
         this.color = color;
     };
 
-	Draw.prototype.Point.prototype.draw = function () {
+    Draw.prototype.Point.prototype = new Shape();
+    
+	Draw.prototype.Point.prototype.buildPath = function () {
         if (!this.size) {
             this.size = 1;
         }
-        WCP.Draw.ctx.save();
         if (this.color) {
             WCP.Draw.ctx.fillStyle = this.color;
         }
 		WCP.Draw.ctx.fillRect(this.x - (this.size / 2 >= 1 ? this.size / 2 : 0), this.y - (this.size / 2 >= 1 ? this.size / 2 : 0), this.size, this.size);
-        WCP.Draw.ctx.restore();
 	};
 
 	Draw.prototype.line = function (x1, y1, x2, y2, style) {
@@ -115,15 +162,13 @@
         this.style = style;
     };
     
-	Draw.prototype.Line.prototype.draw = function () {
-        WCP.Draw.ctx.save();
-		WCP.Draw.ctx.beginPath();
-		WCP.Draw.ctx.moveTo(this.x1, this.y1);
-		WCP.Draw.ctx.lineTo(this.x2, this.y2);
-		WCP.Draw.draw(this.style);
-        WCP.Draw.ctx.restore();
-	};
+    Draw.prototype.Line.prototype = new Shape();
 
+    Draw.prototype.Line.prototype.buildPath = function (ctx) {
+		ctx.moveTo(this.x1, this.y1);
+		ctx.lineTo(this.x2, this.y2);
+    }
+        
     Draw.prototype.circle = function (x, y, radius, style) {
         return new this.Circle(x, y, radius, style);
     };
@@ -135,13 +180,10 @@
         this.style = style;
 	};
     
-    Draw.prototype.Circle.prototype.draw = function () {
-        WCP.Draw.ctx.save();
-        WCP.Draw.ctx.beginPath();
-        WCP.Draw.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
-        WCP.Draw.ctx.closePath();
-        WCP.Draw.draw(this.style);
-        WCP.Draw.ctx.restore();
+    Draw.prototype.Circle.prototype = new Shape();
+
+    Draw.prototype.Circle.prototype.buildPath = function (ctx) {
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
     };
 
 	Draw.prototype.ellipse = function (x, y, width, height, style) {
@@ -155,22 +197,19 @@
         this.height = height;
         this.style = style;
     };
+
+    Draw.prototype.Ellipse.prototype = new Shape();
     
-    Draw.prototype.Ellipse.prototype.draw = function () {
-        WCP.Draw.ctx.save();
-		WCP.Draw.ctx.beginPath();
-		WCP.Draw.ctx.moveTo(this.x, this.y - this.height / 2); // A1
-		WCP.Draw.ctx.bezierCurveTo(
+    Draw.prototype.Ellipse.prototype.buildPath = function (ctx) {
+		ctx.moveTo(this.x, this.y - this.height / 2); // A1
+		ctx.bezierCurveTo(
 			this.x + this.width / 2, this.y - this.height / 2, // C1
 			this.x + this.width / 2, this.y + this.height / 2, // C2
 			this.x, this.y + this.height / 2); // A2
-		WCP.Draw.ctx.bezierCurveTo(
+		ctx.bezierCurveTo(
 			this.x - this.width / 2, this.y + this.height / 2, // C3
 			this.x - this.width / 2, this.y - this.height / 2, // C4
 			this.x, this.y - this.height / 2); // A1
-        WCP.Draw.ctx.closePath();
-		WCP.Draw.draw(this.style);
-        WCP.Draw.ctx.restore();
 	};
 
 	Draw.prototype.rect = function (x, y, width, height, style) {
@@ -185,17 +224,14 @@
         this.style = style;
     };
 
-	Draw.prototype.Rect.prototype.draw = function () {
-        WCP.Draw.ctx.save();
-		WCP.Draw.ctx.beginPath();
-		WCP.Draw.ctx.moveTo(this.x, this.y);
-		WCP.Draw.ctx.lineTo(this.x + this.width, this.y);
-		WCP.Draw.ctx.lineTo(this.x + this.width, this.y + this.height);
-		WCP.Draw.ctx.lineTo(this.x, this.y + this.height);
-		WCP.Draw.ctx.lineTo(this.x, this.y);
-		WCP.Draw.ctx.closePath();
-		WCP.Draw.draw(this.style);
-        WCP.Draw.ctx.restore();
+	Draw.prototype.Rect.prototype = new Shape();
+
+	Draw.prototype.Rect.prototype.buildPath = function (ctx) {
+		ctx.moveTo(this.x, this.y);
+		ctx.lineTo(this.x + this.width, this.y);
+		ctx.lineTo(this.x + this.width, this.y + this.height);
+		ctx.lineTo(this.x, this.y + this.height);
+		ctx.lineTo(this.x, this.y);
 	};
 
     
@@ -214,24 +250,21 @@
 		this.style = style;
     };
     
-    Draw.prototype.Polygon.prototype.draw = function () {
+    Draw.prototype.Polygon.prototype = new Shape();
+
+    Draw.prototype.Polygon.prototype.buildPath = function (ctx) {
 		if (this.points instanceof Array) {
-            WCP.Draw.ctx.save();
-            WCP.Draw.ctx.beginPath();
 			var points = this.points;
             points.reverse();
 			var firstPoint = points.pop();
-			WCP.Draw.ctx.moveTo(firstPoint.x, firstPoint.y);
+			ctx.moveTo(firstPoint.x, firstPoint.y);
 			while (points.length > 0) {
 				var point = points.pop();
 				if (point) {
-					WCP.Draw.ctx.lineTo(point.x, point.y);
+					ctx.lineTo(point.x, point.y);
 				}
 			}
-			WCP.Draw.ctx.lineTo(firstPoint.x, firstPoint.y);
-			WCP.Draw.ctx.closePath();
-			WCP.Draw.draw(this.style);
-            WCP.Draw.ctx.restore();
+			ctx.lineTo(firstPoint.x, firstPoint.y);
 		}
 	};
 
@@ -249,14 +282,12 @@
         this.y2 = y2;
         this.style = style;
     };
+
+	Draw.prototype.QuadraCurve.prototype = new Shape();
     
-	Draw.prototype.QuadraCurve.prototype.draw = function () {
-        WCP.Draw.ctx.save();
-		WCP.Draw.ctx.beginPath();
-		WCP.Draw.ctx.moveTo(this.x1, this.y1);
-		WCP.Draw.ctx.quadraticCurveTo(this.cpx, this.cpy, this.x2, this.y2);
-		WCP.Draw.draw(this.style);
-        WCP.Draw.ctx.restore();
+	Draw.prototype.QuadraCurve.prototype.buildPath = function (ctx) {
+		ctx.moveTo(this.x1, this.y1);
+		ctx.quadraticCurveTo(this.cpx, this.cpy, this.x2, this.y2);
 	};
 
 	Draw.prototype.bezierCurve = function (x1, y1, cpx1, cpy1, cpx2, cpy2, x2, y2, style) {
@@ -275,14 +306,13 @@
         this.style = style;
     };
     
-	Draw.prototype.BezierCurve.prototype.draw = function () {
-        WCP.Draw.ctx.save();
-		WCP.Draw.ctx.beginPath();
-		WCP.Draw.ctx.moveTo(this.x1, this.y1);
-		WCP.Draw.ctx.bezierCurveTo(this.cpx1, this.cpy1, this.cpx2, this.cpy2, this.x2, this.y2);
-		WCP.Draw.draw(this.style);
-        WCP.Draw.ctx.restore();
+    Draw.prototype.BezierCurve.prototype = new Shape();
+
+	Draw.prototype.BezierCurve.prototype.buildPath = function (ctx) {
+		ctx.moveTo(this.x1, this.y1);
+		ctx.bezierCurveTo(this.cpx1, this.cpy1, this.cpx2, this.cpy2, this.x2, this.y2);
 	};
+
     WCP.Draw = new Draw();
 
 })(WCP);

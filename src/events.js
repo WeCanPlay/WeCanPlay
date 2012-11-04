@@ -181,6 +181,7 @@
 	 
 	function ComboManager() {
 		this.combos = {};
+        this.keys = {};
 		this.sequenceEntry = [];
 		this.matchingSequences = {};
 		this.sequenceToCall = 0;
@@ -211,6 +212,18 @@
 			}
 		}
 	};
+    
+    ComboManager.prototype.addKey = function(key, obj) {
+		if (this.keys[key]) {
+			for (var j in obj) {
+				this.keys[key][j] = obj[j];
+			}
+		} else {
+			this.keys[key] = {};
+			this.keys[key] = WCP.Tools.cloneObject(this._default);
+			WCP.Tools.extend(this.keys[key], obj);
+		}
+    }
 
 	ComboManager.prototype.getCombos = function () {
 		var sequences = {};
@@ -380,6 +393,18 @@
 			callback(sequences);
 		}
 	};
+    
+    ComboManager.prototype.triggerKeydown = function (key, event) {
+        if (this.keys[key] && this.keys[key].keydown) {
+            this.keys[key].keydown(event);
+        }
+    }
+
+    ComboManager.prototype.triggerKeyup = function (key, event) {
+        if (this.keys[key] && this.keys[key].keyup) {
+            this.keys[key].keyup(event);
+        }
+    }
 
     /**
      * EventTarget
@@ -410,6 +435,7 @@
         targetClass.prototype.custom = EventTarget.prototype.custom;
         targetClass.prototype.getEvent = EventTarget.prototype.getEvent;
         targetClass.prototype.register = EventTarget.prototype.register;
+        targetClass.prototype.addDrawableController = EventTarget.prototype.addDrawableController;
         targetClass.prototype.subscribe = EventTarget.prototype.subscribe;
         targetClass.prototype.unsubscribe = EventTarget.prototype.unsubscribe;
         targetClass.prototype.on = EventTarget.prototype.on;
@@ -448,6 +474,7 @@
         targetObject.custom = EventTarget.prototype.custom;
         targetObject.getEvent = EventTarget.prototype.getEvent;
         targetObject.register = EventTarget.prototype.register;
+        targetObject.addDrawableController = EventTarget.prototype.addDrawableController;
         targetObject.subscribe = EventTarget.prototype.subscribe;
         targetObject.unsubscribe = EventTarget.prototype.unsubscribe;
         targetObject.on = EventTarget.prototype.on;
@@ -545,7 +572,7 @@
 		this.events = {};
         this.initEvents();
 		this.events._keysdown = [];
-		this.events._sequence = [];
+        this.events._drawables = [];
 		this.events._time = new Date();
 		this.events._time.setTime(this.events._time.getTime());
 		this.events._timeScheduler = new WCP.TimeScheduler();
@@ -664,6 +691,7 @@
             this.currentEvent(evt);
         }
 		if (evt.type === "keydown") {
+            this.events._combos.triggerKeydown(Event.keyCodes[evt.keyCode], evt);
 			this.events._combos.update({key: Event.keyCodes[evt.keyCode], age: WCP.millitime() % 10000});
 			if (this.events._keysdown.indexOf(Event.keyCodes[evt.keyCode]) === -1) {
 				this.events._keysdown.push(Event.keyCodes[evt.keyCode]);
@@ -675,8 +703,8 @@
 					}
 				});
 			}
-		}
-		if (evt.type === "keyup") {
+		} else if (evt.type === "keyup") {
+            this.events._combos.triggerKeyup(Event.keyCodes[evt.keyCode], evt);
 			this.events._combos.find({keys: this.events._keysdown, type: 'combo'}, function (combos) {
 				for (var c in combos) {
 					if (combos[c].keyup) {
@@ -687,8 +715,17 @@
 			if (this.events._keysdown.indexOf(Event.keyCodes[evt.keyCode]) !== -1) {
 				this.events._keysdown.splice(this.events._keysdown.indexOf(Event.keyCodes[evt.keyCode]), 1);
 			}
-		}
-		if (evt.type !== "keyup" && evt.type !== "keydown") {
+		} else if (evt.type === "mousedown") {
+            this.fire(evt.type, evt);
+            for (var d in this.events._drawables) {
+            var drawable = this.events._drawables[d];
+                if (drawable.isPointInPath(evt.clientX, evt.clientY)) {
+                    if (drawable._callbacks.mousedown) {
+                        drawable._callbacks.mousedown(evt);
+                    }
+                }
+            }
+        } else {
 			this.fire(evt.type, evt);
 		}
     };
@@ -698,7 +735,7 @@
 			keydown : action,
 			sequence: false
 		};
-		this.events._combos.add(key, combo);
+		this.events._combos.addKey(key, combo);
 	};
 	
 	EventTarget.prototype.keyup = function (key, action) {
@@ -706,7 +743,7 @@
 			keyup : action,
 			sequence: false
 		};
-		this.events._combos.add(key, combo);
+		this.events._combos.addKey(key, combo);
 	};
 	
 	EventTarget.prototype.combo = function (keys, action) {
@@ -758,7 +795,6 @@
      * Store the management methods in given class's prototype allowing any instance of this class to manage the events of this event manager.
      * @param myClass is the class to register
     */
-    
     EventTarget.prototype.register = function (myClass) {
         myClass.prototype.subscribe = function (that) {
             return function (event, action) {
@@ -786,6 +822,84 @@
                 that.keydown(key, action);
             };
         }(this);
+        myClass.prototype.keyup = function (that) {
+            return function (key, action) {
+                that.keyup(key, action);
+            };
+        }(this);
+        myClass.prototype.sequence = function (that) {
+            return function (keys, action) {
+                that.sequence(keys, action);
+            };
+        }(this);
+        myClass.prototype.combo = function (that) {
+            return function (keys, action) {
+                that.combo(keys, action);
+            };
+        }(this);
+        myClass.prototype.advancedSequence = function (that) {
+            return function (sequences) {
+                that.advancedSequences(sequences);
+            };
+        }(this);
+        myClass.prototype.advancedCombo = function (that) {
+            return function (combos) {
+                that.advancedCombo(combos);
+            };
+        }(this);
+        myClass.prototype.fire = function (that) {
+            return function (event, params) {
+                that.fire(event, params);
+            };
+        }(this);
+    }
+    
+    
+    EventTarget.prototype.addDrawableController = function (drawable) {
+        if (!drawable.isPointInPath) {
+            throw new Error("You must implement the method isPointInPath in the object to register");
+            return -1;
+        }
+        drawable._drawableId = this.events._drawables.length;
+        drawable._callbacks = {
+            mousemove : 0,
+            mouseover : 0,
+            mousedown : 0,
+            mouseup : 0,
+            click : 0
+        }        
+        drawable.on = function(that) {
+            return function(evtName, action) {
+                this.evtName(action);
+            }
+        }(this);
+        drawable.mousedown = function(that) {
+            return function(action) {
+                this._callbacks.mousedown = action;
+            }
+        }(this);
+        drawable.mousemove = function(that) {
+            return function(action) {
+                this._callbacks.mousemove = action;                
+            }
+        }(this);
+        drawable.mouseover = function(that) {
+            return function(action) {
+                this._callbacks.mouseover = action;                
+            }
+        }(this);
+        drawable.mouseup = function(that) {
+            return function(evtName, action) {
+                this._callbacks.mouseup = action;                
+            }
+        }(this);
+        drawable.click = function(that) {
+            return function(action) {
+                this._callbacks.mousedown = action;      
+            }
+        }(this);        
+        this.events._drawables.push(drawable);      
+        return (this.events._drawables.length -1);
     };
     
     /**
@@ -894,7 +1008,7 @@
 			listEvent(evt, this.events.currentEvent);
 		} else if (this.events.currentEvent === false) {
 			document.getElementById("displayCE").innerHTML += evt.type + displayCE;
-//				console.log(evt.type + displayCE);
+			console.log(evt.type + displayCE);
 		} else {
 			if (typeof(evt.screenX) !== "undefined" && typeof(evt.screenY !== "undefined")) {
 				displayCE += ' - ScreenX = ' + evt.screenX + ' - ScreenY = ' + evt.screenY;
@@ -903,7 +1017,7 @@
 				displayCE += ' - Target = ' + evt.target.localName;
 			}
 			document.getElementById("displayCE").innerHTML += evt.type + displayCE;
-//				console.log(evt);
+			console.log(evt);
 		}
 		document.getElementById("displayCE").innerHTML += '<br />';
 		document.getElementById("displayCE").scrollTop = 10000;
