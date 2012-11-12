@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteRule ^(.*).gif$ /WCP/ressources/piano/load.php?file=$1.gif&type=gif [L]
+RewriteRule ^(.*).ogg$ /WCP/ressources/piano/load.php?file=$1.ogg&type=ogg [L]
+RewriteRule ^(.*).mp3$ /WCP/ressources/piano/load.php?file=$1.mp3&type=mp3 [L]
