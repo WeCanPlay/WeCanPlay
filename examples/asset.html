@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebCanPlay - Asset</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Wecanplay">
+    
+    <link href="ressources/style/bootstrap.min.css" rel="stylesheet">
+    <link href="ressources/style/wecanplay.css" rel="stylesheet">
+
+    <script src="build-WCP.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="http://www.wecanplay.fr/"><img src="ressources/style/logo_wecanplay.png" width="50" />WeCanPlay</a>
+            <div class="nav-collapse">
+            <ul class="nav">
+                <li><a href="#">Asset</a></li>
+            </ul>
+            </div>
+        </div>
+      </div>
+    </nav>
+
+    
+    <div class="container">
+        <div class="jumbotron subhead">
+            <h1>Asset</h1>
+            <p class="subtitle">Piano</p>
+                 <canvas id="canvas" ><style>canvas {margin-left: -300px}</style></canvas>
+       </div>
+   </div>
+<script>
+
+var CAN_X = 1540,
+CAN_Y = 470;
+
+var bSize = 700;
+
+WCP.setCanvas("canvas", CAN_X, CAN_Y);
+
+var imgprog = function(group, t, l, e){
+
+	//	load barre
+	WCP.Draw.rect(35, 95, bSize+10, 20, { fillStyle: 'white' }).draw();	
+	WCP.Draw.rect(40, 100, (bSize/t)*(l+e), 10, { fillStyle: 'yellow', strokeStyle: 'yellow' }).draw();
+
+	//    console.log('['+group+'] '+l+" assets loaded out of "+t+" and "+e+" error.");
+	WCP.Draw.rect(40, 50, CAN_X/2-20, 30, { fillStyle: 'white', strokeStyle: 'white' }).draw();
+	var simpleText = new WCP.Text({
+        x: 40,
+        y: 50,
+        text: '['+group+'] '+l+" assets loaded out of "+t+" and "+e+" error.",	
+        size: 25,
+        font: "Calibri",
+        color: "Black"
+    });
+	simpleText.draw();
+	simpleText = new WCP.Text({
+        x: 600,
+        y: 50,
+        text: '['+Math.round(l/t*100)+'%]',	
+        size: 25,
+        font: "Calibri",
+        color: "Black"
+    });
+	simpleText.draw();
+	if ( l!= 5) {
+		WCP.Draw.rect(40, 150, CAN_X/2-20, 30, { fillStyle: 'white', strokeStyle: 'white' }).draw();
+		var simpleText = new WCP.Text({
+			x: 40,
+			y: 150,
+			text: '['+WCP.Assets._assetsCollection[l+28].id+'] '+WCP.Assets._assetsCollection[l+28].path+" loading",	
+			size: 25,
+			font: "Calibri",
+			color: "Black"
+		});
+		simpleText.draw();
+	}
+	if (e > 0) {
+		console.log(e+" file in error.");
+	}
+};
+
+var sndprog = function(group, t, l, e){
+
+	//	load barre
+	WCP.Draw.rect(CAN_X/2+35, 95, bSize+10, 20, { fillStyle: 'white' }).draw();
+	WCP.Draw.rect(CAN_X/2+40, 100, (bSize/t)*(l+e), 10, { fillStyle: 'yellow', strokeStyle: 'yellow' }).draw();
+//    console.log('['+group+'] '+l+" assets loaded out of "+t+" and "+e+" error.");
+	WCP.Draw.rect(CAN_X/2+40, 50, CAN_X/2, 30, { fillStyle: 'white', strokeStyle: 'white' }).draw();
+	var simpleText = new WCP.Text({
+        x: CAN_X/2+40,
+        y: 50,
+        text: '['+group+'] '+l+" assets loaded out of "+t+" and "+e+" error.",	
+        size: 25,
+        font: "Calibri",
+        color: "Black"
+    });
+	simpleText.draw();
+	simpleText = new WCP.Text({
+        x: CAN_X/2+600,
+        y: 50,
+        text: '['+Math.round(l/t*100)+'%]',	
+        size: 25,
+        font: "Calibri",
+        color: "Black"
+    });
+	simpleText.draw();
+	if (l!=28) {
+		WCP.Draw.rect(CAN_X/2+40, 150, CAN_X/2-20, 30, { fillStyle: 'white', strokeStyle: 'white' }).draw();
+		var simpleText = new WCP.Text({
+			x: CAN_X/2+40,
+			y: 150,
+			text: '['+WCP.Assets._assetsCollection[l].id+'] '+WCP.Assets._assetsCollection[l].path+" loading",	
+			size: 25,
+			font: "Calibri",
+			color: "Black"
+		});
+		simpleText.draw();
+	}
+	if (e > 0) {
+		console.log(e+" file in error.");
+	}
+};
+
+var progress = function(group, t, l, e){
+
+	//	load barre
+	WCP.Draw.rect(60, 390, bSize*2+20, 50, { fillStyle: 'white' }).draw();
+	WCP.Draw.rect(70, 400, (bSize*2/t)*(l+e), 30, { fillStyle: 'green', strokeStyle: 'green' }).draw();
+    //console.log('[ ALL ] '+l+" assets loaded out of "+t+" and "+e+" error.");
+	WCP.Draw.rect(200, 300, CAN_X, 60, { fillStyle: 'white', strokeStyle: 'white' }).draw();
+	var simpleText = new WCP.Text({
+        x: 200,
+        y: 300,
+        text: '[ ALL ] '+l+" assets loaded out of "+t+" and "+e+" error.",	
+        size: 40,
+        font: "Calibri",
+        color: "Black"
+    });
+	simpleText.draw();
+	if (e > 0) {
+		console.log(e+" file in error.");
+	}
+};
+
+WCP.Assets.add({
+	path: './ressources/piano/',
+	group: 'sound',
+	assets: {
+		'1A': ['1A.ogg', '1A.mp3'],
+		'1As': ['1As.ogg', '1As.mp3'],
+		'1B': ['1B.ogg', '1B.mp3'],
+		'2C': ['2C.ogg', '2C.mp3'],
+		'2Cs': ['2Cs.ogg', '2Cs.mp3'],
+		'2D': ['2D.ogg', '2D.mp3'],
+		'2Ds': ['2Ds.ogg', '2Ds.mp3'],
+		'2E': ['2E.ogg', '2E.mp3'],
+		'2F': ['2F.ogg', '2F.mp3'],
+		'2Fs': ['2Fs.ogg', '2Fs.mp3'],
+		'2G': ['2G.ogg', '2G.mp3'],
+		'2Gs': ['2Gs.ogg', '2Gs.mp3'],
+		'2A': ['2A.ogg', '2A.mp3'],
+		'2As': ['2As.ogg', '2As.mp3'],
+		'2B': ['2B.ogg', '2B.mp3'],
+		'3C': ['3C.ogg', '3C.mp3'],
+		'3Cs': ['3Cs.ogg', '3Cs.mp3'],
+		'3D': ['3D.ogg', '3D.mp3'],
+		'3Ds': ['3Ds.ogg', '3Ds.mp3'],
+		'3E': ['3E.ogg', '3E.mp3'],
+		'3F': ['3F.ogg', '3F.mp3'],
+		'3Fs': ['3Fs.ogg', '3Fs.mp3'],
+		'3G': ['3G.ogg', '3G.mp3'],
+		'3Gs': ['3Gs.ogg', '3Gs.mp3'],
+		'3A': ['3A.ogg', '3A.mp3'],
+		'3As': ['3As.ogg', '3As.mp3'],
+		'3B': ['3B.ogg', '3B.mp3'],
+		'4C': ['4C.ogg', '4C.mp3']
+		}
+});
+WCP.Assets.add({
+	path: './ressources/piano/',
+	group: 'image',
+	assets: {
+		'background': 'background.gif',
+		'nblanc': 'nblanc.gif',
+		'nfblanc': 'nfblanc.gif',
+		'nnoir': 'nnoir.gif',
+		'nfnoir': 'nfnoir.gif'
+	}
+});
+
+var mainView = new WCP.View({
+    init: function () {
+		var note = Array();
+		var nnote = Array();
+		var pos;
+		
+		var soundb = Array();
+		soundb[0] = Array('1A', 'z');
+		soundb[1] = Array('1B', 'x');
+		soundb[2] = Array('2C', 'c');
+		soundb[3] = Array('2D', 'v');
+		soundb[4] = Array('2E', 'b');
+		soundb[5] = Array('2F', 'n');
+		soundb[6] = Array('2G', 'm');
+		soundb[7] = Array('2A', ',');
+		soundb[8] = Array('2B', '.');
+		soundb[9] = Array('3C', 'e');
+		soundb[10] = Array('3D', 'r');
+		soundb[11] = Array('3E', 't');
+		soundb[12] = Array('3F', 'y');
+		soundb[13] = Array('3G', 'u');
+		soundb[14] = Array('3A', 'i');
+		soundb[15] = Array('3B', 'o');
+		soundb[16] = Array('4C', 'p');
+
+		var soundn = Array();
+		soundn[0] = Array('1As', 's');
+		soundn[2] = Array('2Cs', 'f');
+		soundn[3] = Array('2Ds', 'g');
+		soundn[5] = Array('2Fs', 'j');
+		soundn[6] = Array('2Gs', 'k');
+		soundn[7] = Array('2As', 'l');
+		soundn[9] = Array('3Cs', '4');
+		soundn[10] = Array('3Ds', '5');
+		soundn[12] = Array('3Fs', '7');
+		soundn[13] = Array('3Gs', '8');
+		soundn[14] = Array('3As', '9');
+
+		
+		s = new WCP.SoundManager();
+		var bg = new WCP.Sprite(WCP.Assets.get('background'), 0, 0);
+		bg.setZIndex(0);
+		this.add(bg);
+		for (var i = 0; i < 17; i++) {
+			pos = i*90;
+				
+				//init note blanche
+			note[i] = Array();
+			note[i][0] = new WCP.Sprite(WCP.Assets.get('nblanc'), (pos+5), 5);
+			note[i][0].setZIndex(10);
+			this.add(note[i][0]);
+			note[i][1] = new WCP.Sprite(WCP.Assets.get('nfblanc'), (pos+5), 5);
+			note[i][1].setZIndex(9);
+			this.add(note[i][1]);
+
+				//init sound blanche
+			soundb[i][2] = s.channel(WCP.Assets.get(soundb[i][0]),
+				{id : soundb[i][0], preload : true, autoplay:false, loop : false, volume : 100});
+
+				//init note noir
+			if (soundn[i] !== undefined) {
+				nnote[i] = Array();
+				nnote[i][0] = new WCP.Sprite(WCP.Assets.get('nnoir'), (pos+5), 5);
+				nnote[i][0].setZIndex(20);
+				this.add(nnote[i][0]);
+				nnote[i][1] = new WCP.Sprite(WCP.Assets.get('nfnoir'), (pos+5), 5);
+				nnote[i][1].setZIndex(19);
+				this.add(nnote[i][1]);
+				
+					//init sound noir
+				soundn[i][2] = s.channel(WCP.Assets.get(soundn[i][0]),
+					{id : soundn[i][0], preload : true, autoplay:false, loop : false, volume : 100});
+				
+			}
+		}
+
+			//init Event keydown
+		document.addEventListener('keydown', function(evt) {
+			for (var i = 0; i < 17; i++) {
+				if (WCP.Event.keyCodes[evt.keyCode] === soundb[i][1]) {
+					soundb[i][2].play(); note[i][0].setZIndex(9); note[i][1].setZIndex(10);
+				} else if (soundn[i] !== undefined) {
+					if (WCP.Event.keyCodes[evt.keyCode] === soundn[i][1]) {
+						soundn[i][2].play(); nnote[i][0].setZIndex(19); nnote[i][1].setZIndex(20);
+					}
+				}
+			}
+		}, false);
+			//init Event keyup
+		document.addEventListener('keyup', function(evt) {
+			for (var i = 0; i < 17; i++) {
+				if (WCP.Event.keyCodes[evt.keyCode] === soundb[i][1]) {
+					note[i][0].setZIndex(10); note[i][1].setZIndex(9);
+				} else if (soundn[i] !== undefined) {
+					if (WCP.Event.keyCodes[evt.keyCode] === soundn[i][1]) {
+						nnote[i][0].setZIndex(20); nnote[i][1].setZIndex(19);
+					}
+				}
+			}
+		}, false);
+
+		WCP.on('mousedown', function(evt) {
+			var rect = WCP.canvas.getBoundingClientRect();
+			var mouseX = evt.clientX - rect.left;
+			var mouseY = evt.clientY - rect.top;
+			for (var i = 0; i < 17; i++) {
+				pos = i*90;
+				if (mouseX >= (pos+5+90-23) && mouseX <= (pos+5+90+23) && mouseY >= 5 && mouseY <= (5+326)) {
+					if (soundn[i] === undefined)
+						break;
+					soundn[i][2].play();
+					nnote[i][0].setZIndex(19);
+					nnote[i][1].setZIndex(20);
+				}
+			}
+			for (var i = 0; i < 17; i++) {
+				pos = i*90;
+				if (mouseX >= (pos+5) && mouseX <= (pos+5+90) && mouseY >= 5 && mouseY <= (5+460)) {
+					soundb[i][2].play();
+					note[i][0].setZIndex(9);
+					note[i][1].setZIndex(10);
+				}
+			}
+		});
+		WCP.on('mouseup', function(evt) {
+			var rect = WCP.canvas.getBoundingClientRect();
+			var mouseX = evt.clientX - rect.left;
+			var mouseY = evt.clientY - rect.top;
+			for (var i = 0; i < 17; i++) {
+				pos = i*90;
+				if (mouseX >= (pos+5+90-23) && mouseX <= (pos+5+90+23) && mouseY >= 5 && mouseY <= (5+326)) {
+					if (soundn[i] === undefined)
+						break;
+					nnote[i][0].setZIndex(20);
+					nnote[i][1].setZIndex(19);
+				}
+			}
+			for (var i = 0; i < 17; i++) {
+				pos = i*90;
+				if (mouseX >= (pos+5) && mouseX <= (pos+5+90) && mouseY >= 5 && mouseY <= (5+460)) {
+					note[i][0].setZIndex(10);
+					note[i][1].setZIndex(9);
+				}
+			}
+		});
+	},
+    loop: function () {
+
+    }
+});
+
+WCP.Assets.load('image', imgprog, function(){});
+WCP.Assets.load('sound', sndprog, function(){});
+WCP.Assets.load('*', progress, function(){
+    mainView.start();
+});
+
+</script>
+</body>
+</html>

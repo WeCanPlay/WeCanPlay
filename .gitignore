@@ -1,2 +1,6 @@
 # SublimeText project files
 *.sublime-workspace
+
+builds/*
+examples/build-WCP.js
+examples/build-WCP-min.js

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--<link rel="stylesheet" href="../qunit/qunit/qunit.css" type="text/css" media="screen" />-->
+		<script src="../examples/build-WCP-min.js"></script>
+		<script src="./lib/jquery.js"></script>
+		<script type="text/javascript" src="./lib/qunit.js" /></script>
+    </head>
+    <body>
+        <canvas id="canvas" ></canvas>
+        <script>
+			module("Matrix");
+			
+			function preci(nb) {
+				return (Math.round(nb * 100) / 100);
+			}
+			
+			var m = new WCP.Matrix([[-4,-3,-2],[-1,0,1],[2,3,4]]);
+			test("Create matrix", function() {
+				expect(3);
+				equal(m.matrix[0][0], -4);
+				equal(m.matrix[2][0], 2, "Matrix reversed");
+				equal(m.matrix[1][1], 0);
+			});
+			
+			var md = new WCP.MatrixDiagonal([1,2,3]);
+			test("Diagonal matrix", function() {
+				expect(4);
+				equal(md.matrix[0][0], 1);
+				equal(md.matrix[1][1], 2);
+				equal(md.matrix[2][2], 3);
+				equal(md.matrix[1][2], 0);
+			});
+			
+			var mi = new WCP.MatrixIdentity(3);
+			test("Identity matrix", function() {
+				expect(4);
+				equal(mi.matrix[0][0], 1);
+				equal(mi.matrix[1][1], 1);
+				equal(mi.matrix[2][2], 1);
+				equal(mi.matrix[1][2], 0);
+			});
+			
+			var mr = new WCP.MatrixRotation(Math.PI / 2);
+			test("Rotation matrix", function() {
+				expect(3);
+				equal(mr.matrix[0][1], -1);
+				equal(mr.matrix[1][0], 1);
+				equal(preci(mr.matrix[0][0]), 0, "Possible round error");
+			});
+			
+			var mrx = new WCP.MatrixRotationX(Math.PI / 4);
+			test("Rotation matrix on X", function() {
+				expect(5);
+				equal(mrx.matrix[0][0], 1);
+				equal(preci(mrx.matrix[1][1]), 0.71);
+				equal(preci(mrx.matrix[1][2]), -0.71);
+				equal(preci(mrx.matrix[2][1]), 0.71);
+				equal(preci(mrx.matrix[2][2]), 0.71);
+			});
+			
+			var mry = new WCP.MatrixRotationY(Math.PI / 4);
+			test("Rotation matrix on Y", function() {
+				expect(5);
+				equal(preci(mry.matrix[0][0]), 0.71);
+				equal(preci(mry.matrix[0][2]), 0.71);
+				equal(preci(mry.matrix[1][1]), 1);
+				equal(preci(mry.matrix[2][0]), -0.71);
+				equal(preci(mry.matrix[2][2]), 0.71);
+			});
+			
+			var mrz = new WCP.MatrixRotationZ(Math.PI / 4);
+			test("Rotation matrix on Z", function() {
+				expect(5);
+				equal(preci(mrz.matrix[0][0]), 0.71);
+				equal(preci(mrz.matrix[0][1]), -0.71);
+				equal(preci(mrz.matrix[1][0]), 0.71);
+				equal(preci(mrz.matrix[1][1]), 0.71);
+				equal(preci(mrz.matrix[2][2]), 1);
+			});
+			
+			/*
+			var mz = new WCP.MatrixZero(1, 2);
+			test("Matrix zero", function() {
+				expect(2);
+				strictEqual( mz.matrix[0][0], 0);
+				strictEqual( mz.matrix[0][2], 0);
+			});
+			*/
+			
+			var m1 = new WCP.Matrix([[3, 0, 2],[4, 2, 5],[5, 2, 1]]);
+			var m2 = new WCP.Matrix([[5, 2, 1],[8, 2, 5],[5, 3, 9]]);
+			var m3 = m1.add(m2);
+			test("Marix addition", function() {
+				expect(5);
+				equal(m3.matrix[0][0], 8);
+				equal(m3.matrix[0][1], 2);
+				equal(m3.matrix[0][2], 3);
+				equal(m3.matrix[1][0], 12);
+				equal(m3.matrix[1][1], 4);
+			});
+			
+			var m4 = m1.mult(m2);
+			test("Marix multiplication", function() {
+				expect(5);
+				equal(m4.matrix[0][0], 25);
+				equal(m4.matrix[0][1], 12);
+				equal(m4.matrix[0][2], 21);
+				equal(m4.matrix[1][0], 61);
+				equal(m4.matrix[1][1], 27);
+			});
+			
+			var m5 = m1.sub(m2);
+			test("Marix substract", function() {
+				expect(5);
+				equal(m5.matrix[0][0], -2);
+				equal(m5.matrix[0][1], -2);
+				equal(m5.matrix[0][2], 1);
+				equal(m5.matrix[1][0], -4);
+				equal(m5.matrix[1][1], 0);
+			});
+
+			test("Matrix determinant", function() {
+				equal(m1.determinant(), -28, "fail, a jarter on sais meme a pas a quoi ca sert");
+			})
+
+			test("Matrix at", function() {
+				expect(2);
+				equal(m2.at(0, 0), m2.matrix[0][0]);
+				equal(m2.at(1, 0), m2.matrix[1][0], "Inversion of array array");
+			})
+
+			var mc = m5.cpy();
+			test("Marix copy", function() {
+				expect(5);
+				equal(mc.matrix[0][0], -2);
+				equal(mc.matrix[0][1], -2);
+				equal(mc.matrix[0][2], 1);
+				equal(mc.matrix[1][0], -4);
+				equal(mc.matrix[1][1], 0);
+			});
+
+			test("Marix is same size", function() {
+				expect(2);
+				equal(m5.isSameSizeAs(m1), true);
+				equal(m2.isSameSizeAs(mr), false);
+			});
+			
+			// miss round / show
+			
+        </script>
+    </body>
+</html>
+

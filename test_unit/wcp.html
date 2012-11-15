@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--<link rel="stylesheet" href="../qunit/qunit/qunit.css" type="text/css" media="screen" />-->
+		<script src="../examples/build-WCP-min.js"></script>
+		<script src="./lib/jquery.js"></script>
+		<script type="text/javascript" src="./lib/qunit.js" /></script>
+    </head>
+    <body>
+        <canvas id="canvas" ></canvas>
+        <script>
+			module("WCP");
+			test("Existance of WCP variable", function() {
+				ok ((WCP !== 'undefined')? true : false, "WCP variable isn't initialised")
+			});
+			
+			
+        </script>
+    </body>
+</html>
+

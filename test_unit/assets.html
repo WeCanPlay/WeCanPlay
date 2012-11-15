@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+		<script src="../examples/build-WCP-min.js"></script>
+		<script src="./lib/jquery.js"></script>
+		<script type="text/javascript" src="./lib/qunit.js" /></script>
+    </head>
+    <body>
+        <canvas id="canvas" ></canvas>
+        <script>
+			module("Assets");
+			
+			function preci(nb) {
+				return (Math.round(nb * 100) / 100);
+			}
+			
+			WCP.Assets.add('otter', 'assets/otter.gif');
+
+			test("Simple add", function() {
+				expect(3);
+				equal(WCP.Assets._assetsCollection.length, 7);
+				equal(WCP.Assets._assetsCollection[0].id, 'otter');
+				equal(WCP.Assets._assetsCollection[0].path, 'assets/otter.gif');
+			});
+
+			WCP.Assets.add('animal', 'otter2', 'assets/otter.gif');
+			test("Simple add with group name", function() {
+				expect(3);
+				equal(WCP.Assets._assetsCollection[1].id, 'otter2');
+				equal(WCP.Assets._assetsCollection[1].path, 'assets/otter.gif');
+				equal(WCP.Assets._assetsCollection[1].group, 'animal');
+			});
+
+			WCP.Assets.add('sound', 'hit', ['assets/hit.mp3', 'assets/hit.ogg']);
+			test("Simple add music with group name", function() {
+				expect(3);
+				equal(WCP.Assets._assetsCollection[2].id, 'hit');
+				equal(WCP.Assets._assetsCollection[2].path[0], 'assets/hit.mp3');
+				equal(WCP.Assets._assetsCollection[2].path[1], 'assets/hit.ogg');
+			});
+
+			WCP.Assets.path('assets/');
+			WCP.Assets.add('animal', 'otter3', 'otter.gif');
+			test("Specify a global path", function() {
+				expect(3);
+				equal(WCP.Assets._assetsCollection[3].id, 'otter3');
+				equal(WCP.Assets._assetsCollection[3].path, 'assets/otter.gif');
+				equal(WCP.Assets._assetsCollection[3].group, 'animal');
+			});
+
+			WCP.Assets.add({
+				group: 'animal',
+				assets : {
+					'otter4': 'otter.gif'
+				}
+			});
+			test("Add with Object with group name", function() {
+				expect(3);
+				equal(WCP.Assets._assetsCollection[4].id, 'otter4');
+				equal(WCP.Assets._assetsCollection[4].path, 'assets/otter.gif');
+				equal(WCP.Assets._assetsCollection[4].group, 'animal');
+			});
+
+			WCP.Assets.path('')
+			WCP.Assets.add({
+				path: 'assets/',
+				group: 'animal',
+				assets : {
+					'otter5': 'otter.gif'
+				}
+			});
+			test("Add with Object with group name", function() {
+				expect(3);
+				equal(WCP.Assets._assetsCollection[5].id, 'otter5');
+				equal(WCP.Assets._assetsCollection[5].path, 'assets/otter.gif');
+				equal(WCP.Assets._assetsCollection[5].group, 'animal');
+			});
+
+			WCP.Assets.add({
+				path: 'assets/',
+				group: 'sound',
+				assets : {
+					'hit' : ['hit.mp3', 'hit.ogg']
+				}
+			});
+			test("Add with Object with group name", function() {
+				expect(3);
+				equal(WCP.Assets._assetsCollection[6].id, 'hit');
+				equal(WCP.Assets._assetsCollection[6].path[0], 'assets/hit.mp3');
+				equal(WCP.Assets._assetsCollection[6].path[1], 'assets/hit.ogg');
+			});
+
+			asyncTest("When loading is complete", function() {
+				expect(3);
+				WCP.Assets.load('animal', null, function(g, t, l, e){
+					equal(g, 'animal');
+					equal(t, 4, 'Total');
+					equal(l, 4, 'Loaded');
+					start();
+				})
+			});
+
+			asyncTest("get an asset", function() {
+				WCP.Assets.load('animal', null, function(g, t, l, e){
+					var o = WCP.Assets.get('otter5');
+					expect(1);
+					equal(o.toString(), "[object HTMLImageElement]");
+					start();
+				});
+			});
+
+			test("Size of collection", function() {
+				expect(2);
+				equal(WCP.Assets.size(), 7, 'All collection');
+				equal(WCP.Assets.size('animal'), 4, 'Just group "animal"');
+			});
+
+			
+        </script>
+    </body>
+</html>
+
