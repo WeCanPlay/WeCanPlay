@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebCanPlay - Sniky</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Wecanplay">
+    
+    <link href="ressources/style/bootstrap.min.css" rel="stylesheet">
+    <link href="ressources/style/wecanplay.css" rel="stylesheet">
+
+    <script src="build-WCP.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="http://www.wecanplay.fr/"><img src="ressources/style/logo_wecanplay.png" width="50" />WeCanPlay</a>
+            <div class="nav-collapse">
+            <ul class="nav">
+                <li><a href="#">{TITLE}</a></li>
+            </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </nav>
+
+    
+    <div class="container">
+        <div class="jumbotron subhead">
+            <h1>Sniky the snake</h1>
+            <p class="subtitle">{SUBTITLE}</p>
+                <canvas id="canvas"></canvas>
+            <div class='well'>
+                {Some explain}
+            </div>
+       </div>
+   </div>
+<script>
+
+CANVAS_WIDTH = 420;
+CANVAS_HEIGHT = 420;
+SPEED = 300;
+Score = 0;
+
+var snake, apple, size, direction, refresh, body, headSprite, bodySprite, appleSprite;
+var direct = {
+    LEFT: Math.PI,
+    DOWN: Math.PI / 2,
+    RIGHT: 0,
+    UP: 3 * ( Math.PI /2),
+}
+
+function changeDirection(event) {
+    if (event.which === 37) {
+        if (direction !== 'RIGHT') {
+            direction = 'LEFT';
+        }
+    }
+    else if (event.which === 38) {
+        if (direction !== 'DOWN') {
+            direction = 'UP';
+        }
+    }
+    else if (event.which === 39) {
+        if (direction !== 'LEFT') {
+            direction = 'RIGHT';
+        }
+    }
+    else if (event.which === 40) {
+        if (direction !== 'UP') {
+            direction = 'DOWN';
+        }
+    }
+}
+
+function move() {
+
+    appleSprite.position(apple.x, apple.y);
+    score.setText('Score: '+Score);  
+
+    if (body.length > 0) {
+        var part = body.pop();
+        part.x = snake.x;
+        part.y = snake.y;
+        part.dir = direction;
+        body.unshift(part);
+    }
+
+    if (direction === 'UP') {
+        if ((snake.y - size) >= 0) {
+            snake.y -= size;
+        }
+        else {
+            snake.y = CANVAS_HEIGHT - size;
+        }
+    }
+    else if (direction === 'DOWN') {
+        if ((snake.y + size) < CANVAS_HEIGHT) {
+            snake.y += size;
+        }
+        else {
+            snake.y = 0;
+        }
+    }
+    else if (direction === 'LEFT') {
+        if ((snake.x - size) >= 0) {
+            snake.x -= size;
+        }
+        else {
+            snake.x = CANVAS_WIDTH - size;
+        }
+    }
+    else if (direction === 'RIGHT') {
+        if ((snake.x + size) < CANVAS_WIDTH) {
+            snake.x += size
+        }
+        else {
+            snake.x = 0;
+        }
+    }
+    headSprite.rotation = direct[direction];
+}
+
+function eat() {
+    if (snake.x === apple.x && snake.y === apple.y) {
+        WCP.Assets.get('crunch').play();
+        Score += 1;
+        SPEED -= 2;
+
+        var b = new WCP.Sprite(WCP.Assets.get('new'), snake.x+15, snake.y+15);
+        b.setOrigin(WCP.Sprite.ORIGIN_CENTER);
+        b.rotation = direct[snake.direction];
+        b.setZIndex(2);
+        body.push({x: snake.x, y: snake.y, dir: direction, sp: b});
+        gameScene.add(b);
+
+        var stop = false;
+        while (stop === false) {
+            apple.x = Math.floor(Math.random() * (CANVAS_WIDTH / size)) * size;
+            apple.y = Math.floor(Math.random() * (CANVAS_HEIGHT / size)) * size;
+            stop = true;
+            if (snake.x === apple.x && snake.y === apple.y) {
+                stop = false;
+            }
+            else {
+                for (var n = 0; n < body.length; n++) {
+                    if (body[n].x === apple.x && body[n].y === apple.y) {
+                        stop = false;
+                        break ;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function collision() {
+    for (var n = 0; n < body.length; n++) {
+        if (snake.x === body[n].x && snake.y === body[n].y) {
+            gameScene.stop();
+        }
+    }
+}
+
+WCP.setCanvas('canvas', CANVAS_WIDTH, CANVAS_HEIGHT);
+
+WCP.Assets.add({
+    path: 'ressources/',
+    assets: {
+        'head'  : 'head.png',
+        'body'  : 'body.png',
+        'new'  : 'newbody.png',
+        'corner'  : 'corner.png',
+        'tail'  : 'tail.png',
+        'apple' : 'apple.png',
+        'bg' : 'background.png',
+        'crunch'   : ['apple-crunch.mp3', 'apple-crunch.ogg']
+    }
+});
+
+var game = {
+
+    init: function () {
+        snake = {x: 30, y: 30};
+        apple = {x: 120, y: 120};
+        size = 30;
+        direction = 'RIGHT';
+        refresh = WCP.millitime() + SPEED;
+        body = new Array();
+
+        bg = new WCP.Sprite(WCP.Assets.get('bg'), 0, 0);
+        headSprite = new WCP.Sprite(WCP.Assets.get('head'), snake.x + 15, snake.y + 15);
+        //bodySprite = new WCP.Sprite(WCP.Assets.get('body'), snake.x, snake.y);
+        tailSprite = new WCP.Sprite(WCP.Assets.get('tail'), snake.x-15, snake.y + 15);
+        appleSprite = new WCP.Sprite(WCP.Assets.get('apple'), apple.x, apple.y);
+        score = new WCP.Text("Score: ", 10, 10);
+
+        // body.push({x: snake.x, y: snake.y, dir: direction, sp: headSprite});
+        // body.push({x: snake.x-30, y: snake.y, dir: direction, sp: tailSprite});
+
+        headSprite.setOrigin(WCP.Sprite.ORIGIN_CENTER);
+        //bodySprite.setOrigin(WCP.Sprite.ORIGIN_CENTER);
+        tailSprite.setOrigin(WCP.Sprite.ORIGIN_CENTER);
+        headSprite.rotation = direct[direction];
+
+        bg.setZIndex(1);
+        headSprite.setZIndex(3);
+        appleSprite.setZIndex(2);
+        //bodySprite.setZIndex(2);
+
+        //this.add(bg);
+        this.add(tailSprite);
+        this.add(headSprite);
+
+        this.add(appleSprite);
+        this.add(score);
+
+        WCP.keydown('up', changeDirection);
+        WCP.keydown('down', changeDirection);
+        WCP.keydown('left', changeDirection);
+        WCP.keydown('right', changeDirection);
+    },
+
+    loop: function () {
+        headSprite.position(snake.x + 15, snake.y + 15);
+        var n = 0;
+        //body[n].sp.img = WCP.Assets.get('head');
+        for (n; n < body.length ; n++) {
+            var b = body[n].sp;
+
+            b.setZIndex(2);
+            b.rotation = direct[body[n].dir];
+            b.position(body[n].x + 15 , body[n].y + 15);
+        }
+            if (body.length > 0) {
+
+                body[body.length-1].sp.img = WCP.Assets.get('body');
+
+                for (var i = 0; i < body.length; i++) {
+                    if (i < body.length-1) {
+                        if (body[i].dir != body[i+1].dir) {
+                            console.log(body[i].dir, body[i+1].dir)
+                            body[i].sp.img = WCP.Assets.get('corner');
+                            if (body[i].dir == 'RIGHT') {
+                                if (body[i+1].dir == 'UP'){
+                                    body[i].sp.rotation = Math.PI;
+                                } else if (body[i+1].dir == 'DOWN') {
+                                    body[i].sp.rotation = Math.PI /2;
+                                }
+                            } else if (body[i].dir == 'LEFT') {
+                                if (body[i+1].dir == 'UP') {
+                                    body[i].sp.rotation = 3 * (Math.PI / 2);
+                                } else if (body[i+1].dir == 'DOWN') {
+                                    body[i].sp.rotation = 0;
+                                }
+                            } else if (body[i].dir == 'UP') {
+                                if (body[i+1].dir == 'LEFT') {
+                                    body[i].sp.rotation = Math.PI /2;
+                                } else if (body[i+1].dir == 'RIGHT') {
+                                    body[i].sp.rotation = 0;
+                                }
+                            } else if (body[i].dir == 'DOWN'){
+                                if (body[i+1].dir == 'RIGHT') {
+                                    body[i].sp.rotation = 3 * (Math.PI / 2);
+                                } else if (body[i+1].dir == 'LEFT') {
+                                    body[i].sp.rotation = Math.PI;
+                                }
+                            }
+                             
+                        }
+                    }
+                }
+                //tailSprite.position(body[i-1].x + 45, body[i-1].y + 45)
+            } else {
+                tailSprite.position(snake.x - 15, snake.y + 15)
+            }
+        
+
+
+        if (WCP.millitime() >= refresh) {
+            move();
+            collision();
+            eat();
+            refresh = WCP.millitime() + SPEED;
+        }
+    }
+};
+
+var gameScene = new WCP.View(game);
+
+WCP.Assets.load('*', function(){
+
+}, function(){
+    gameScene.start();
+})
+
+</script>
+</body>
+</html>

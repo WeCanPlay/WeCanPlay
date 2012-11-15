@@ -19,7 +19,6 @@ module.exports = function (grunt) {
             files : [ // in dependency order!
                 "src/WCP.js",
                 "src/tools.js",
-                "src/utils.js",
                 "src/vector.js",
                 "src/time.js",
                 "src/events.js",
