@@ -194,10 +194,10 @@
         }
     };
 
-    Filter.filterApplyColorAdjust = function (imageData, width, height, red, green, blue) { // from 0 to +255
-        red = Math.round((Math.max(0, Math.min(255, red))) - 255);
-        green = Math.round((Math.max(0, Math.min(255, green))) - 255);
-        blue = Math.round((Math.max(0, Math.min(255, blue))) - 255);
+    Filter.filterApplyColorAdjust = function (imageData, width, height, red, green, blue) { // from -255 to +255
+        red = Math.round((Math.max(-255, Math.min(255, red))));
+        green = Math.round((Math.max(-255, Math.min(255, green))));
+        blue = Math.round((Math.max(-255, Math.min(255, blue))));
         for (var x = 0; x < width; x++) {
             for (var y = 0; y < height; y++) {
                 var idx = (x + y * width) * 4;
