@@ -448,11 +448,12 @@
         window.requestAnimFrame(updateAllViews);
     
         var time = WCP.millitime();
+        var deltaLastUpdate = time - _viewsData.lastGlobalUpdateTime;
     
         // No update
-        if ((time - _viewsData.lastGlobalUpdateTime) < (1000 / WCP.globalFps)) {
-            return;
-        }
+        // if (deltaLastUpdate < (1000 / WCP.globalFps)) {
+        //     return;
+        // }
     
         _viewsData.lastGlobalUpdateTime = time;
     
