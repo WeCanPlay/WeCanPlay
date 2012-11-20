@@ -10,16 +10,21 @@
     "use strict";
 
     function Vector(x, y, x2, y2) {
-        if (arguments.length === 1 && typeof x === 'object') {
+        if (typeof x === 'object') {
             this.x = x.x;
             this.y = x.y;
+        } else {
+            this.x = x;
+            this.y = y;
+        }
+
+        if (typeof y === 'object') {
+            this.x = y.x - this.x;
+            this.y = y.y - this.y;
         } else {
             if (arguments.length === 4) {
                 this.x = x2 - x;
                 this.y = y2 - y;
-            } else {
-                this.x = x;
-                this.y = y;
             }
         }
     }
