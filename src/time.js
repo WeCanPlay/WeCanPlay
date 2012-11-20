@@ -307,6 +307,113 @@
             this.data[i] = 0;
         }
     };
+    /**
+     * FPS Tick Counter
+     */
+    function TimeCounter() {
+        this.data = [0, 0];
+        this.startTime = 0;
+        this.deltaTime = 0;
+
+        this.reset();
+    }
+
+    TimeCounter.prototype.get = function () {
+    //     return (this.count / (WCP.time() - this.startTime));
+
+        return ((this.data[0] + this.data[1]) / (WCP.time() - this.deltaTime));
+    };
+
+    TimeCounter.prototype.tick = function () {
+        // this.count++;return;
+
+        var t = WCP.time();
+        var delta = t - this.deltaTime;
+
+        if (delta < 1) {
+            this.data[0]++;
+        } else if (delta < 2) {
+            this.data[1]++;
+        } else {
+            this.data[0] = this.data[1];
+            this.data[1] = 0;
+            this.deltaTime = t - 1;
+        }
+    };
+
+    TimeCounter.prototype.reset = function () {
+        // this.count = 0;
+
+        this.data = [0, 0];
+        this.startTime = WCP.time();
+        this.deltaTime = this.startTime;
+    };
+
+
+    /**
+     * FPS Tick Counter
+     *
+     * @param duration
+     */
+     /*
+    function TimeCounter(duration) {
+        this.precision = 0.1; // number of s/block
+        this.duration = duration || 5;
+        this.size = Math.ceil(this.duration / this.precision) + 1;
+        this.filled = 0;
+        this.index = 0;
+        this.previousTime = 0;
+        this.startTime = 0;
+        this.data = new Array(this.size);
+
+        this.reset();
+    }
+
+    TimeCounter.prototype.get = function () {
+        var sum = 0;
+        var nb = 0;
+
+        for (var i = 0; i < this.size && i < this.filled; i++) {
+            if (i !== this.index && this.data[i] > 0) {
+                sum += this.data[i];
+                nb++;
+            }
+        }
+
+        if (nb === 0) {
+            return (0);
+        }
+
+        return (sum / nb / this.precision);
+    };
+
+    TimeCounter.prototype.tick = function () {
+        var time = WCP.time();
+        var delta = time - this.startTime;
+        var nextIndex = Math.floor(delta / this.precision) % this.size;
+
+        if (this.index !== nextIndex) {
+            this.data[nextIndex] = 0;
+        }
+
+        this.data[nextIndex]++;
+        this.index = nextIndex;
+
+        if (nextIndex > this.filled) {
+            this.filled = nextIndex;
+        }
+    };
+
+    TimeCounter.prototype.reset = function () {
+        this.index = 0;
+        this.filled = 0;
+        this.startTime = 0;
+
+        for (var i = 0; i < this.size; i++) {
+            this.data[i] = 0;
+        }
+    };
+    */
 
 
     /**
