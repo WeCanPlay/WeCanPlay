@@ -81,6 +81,7 @@ function changeDirection(event) {
 
 function move() {
 
+
     appleSprite.position(apple.x, apple.y);
     score.setText('Score: '+Score);  
 
@@ -192,7 +193,7 @@ var game = {
         size = 30;
         direction = 'RIGHT';
         refresh = WCP.millitime() + SPEED;
-        body = new Array();
+        body = [];
 
         bg = new WCP.Sprite(WCP.Assets.get('bg'), 0, 0);
         headSprite = new WCP.Sprite(WCP.Assets.get('head'), snake.x + 15, snake.y + 15);
@@ -201,8 +202,12 @@ var game = {
         appleSprite = new WCP.Sprite(WCP.Assets.get('apple'), apple.x, apple.y);
         score = new WCP.Text("Score: ", 10, 10);
 
-        // body.push({x: snake.x, y: snake.y, dir: direction, sp: headSprite});
-        // body.push({x: snake.x-30, y: snake.y, dir: direction, sp: tailSprite});
+        // var b = new WCP.Sprite(WCP.Assets.get('tail'), snake.x - 15, snake.y + 15);
+        // b.setOrigin(WCP.Sprite.ORIGIN_CENTER);
+        // b.rotation = direct[snake.direction];
+        // b.setZIndex(2);
+        // body.push({x: snake.x, y: snake.y, dir: direction, sp: tailSprite});
+        // this.add(b)
 
         headSprite.setOrigin(WCP.Sprite.ORIGIN_CENTER);
         //bodySprite.setOrigin(WCP.Sprite.ORIGIN_CENTER);
@@ -214,8 +219,8 @@ var game = {
         appleSprite.setZIndex(2);
         //bodySprite.setZIndex(2);
 
-        //this.add(bg);
-        this.add(tailSprite);
+        this.add(bg);
+        //this.add(tailSprite);
         this.add(headSprite);
 
         this.add(appleSprite);
@@ -228,12 +233,11 @@ var game = {
     },
 
     loop: function () {
-        headSprite.position(snake.x + 15, snake.y + 15);
+        
         var n = 0;
         //body[n].sp.img = WCP.Assets.get('head');
-        for (n; n < body.length ; n++) {
+        for (n = 0; n < body.length ; n++) {
             var b = body[n].sp;
-
             b.setZIndex(2);
             b.rotation = direct[body[n].dir];
             b.position(body[n].x + 15 , body[n].y + 15);
@@ -243,9 +247,10 @@ var game = {
                 body[body.length-1].sp.img = WCP.Assets.get('body');
 
                 for (var i = 0; i < body.length; i++) {
+                    body[i].sp.img = WCP.Assets.get('body');
                     if (i < body.length-1) {
                         if (body[i].dir != body[i+1].dir) {
-                            console.log(body[i].dir, body[i+1].dir)
+
                             body[i].sp.img = WCP.Assets.get('corner');
                             if (body[i].dir == 'RIGHT') {
                                 if (body[i+1].dir == 'UP'){
@@ -277,11 +282,11 @@ var game = {
                     }
                 }
                 //tailSprite.position(body[i-1].x + 45, body[i-1].y + 45)
-            } else {
-                tailSprite.position(snake.x - 15, snake.y + 15)
-            }
-        
+                body[body.length-1].sp.img = WCP.Assets.get('tail');
 
+            }
+
+            headSprite.position(snake.x + 15, snake.y + 15);
 
         if (WCP.millitime() >= refresh) {
             move();
