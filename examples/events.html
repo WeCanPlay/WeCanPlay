@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WeCanPlay - Ryu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Wecanplay">
+    
+    <link href="ressources/style/bootstrap.min.css" rel="stylesheet">
+    <link href="ressources/style/wecanplay.css" rel="stylesheet">
+    <script src="build-WCP.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="http://www.wecanplay.fr/"><img src="ressources/style/logo_wecanplay.png" width="50" />WeCanPlay</a>
+            <div class="nav-collapse">
+            <ul class="nav">
+                <li><a href="#">Ryu</a></li>
+            </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </nav>
+
+    
+    <div class="container">
+        <div class="jumbotron subhead">
+            <h1>Ryu</h1>
+            <canvas id="canvas" style="background-color: #bcbcbc;"></canvas>
+            <div class='well'>
+                This demo allows you to try the different kind of events offered by WeCanPlay.
+                <br/>
+                Please try some of these attacks :
+                <ul>
+                    <li>Punch : p</li>
+                    <li>Big Punch : left+p</li>
+                    <li>Kick : k</li>
+                    <li>Big Kick : right+k</li>
+                    <li>Tatsumaki Senpuukyaku : down, left, k</li>
+                    <li>Hadouken : down, right, p</li>
+                </ul>
+            </div>
+       </div>
+   </div>
+        <script>
+            (function() {
+                var log = WCP.log;
+
+                // Set Canvas and lib' options
+                var cx = 200;
+                var cy = 150;
+                WCP.setCanvas("canvas", cx, cy);
+                var canvas = document.getElementById("canvas");
+
+                MyEventManager = function () {};
+                WCP.EventTarget.extend(MyEventManager);
+                var myEventManager = new MyEventManager();
+                myEventManager.listen();
+                myEventManager.register(WCP.Animation);
+                
+                var key = null;
+                var ryu;
+                var lock = false;
+
+
+                function punch () {
+                    ryu.setAnimation("punch", 1);
+                }
+
+                function bigPunch () {
+                    ryu.setAnimation("bigPunch", 1);
+                }
+
+                function kick () {
+                    ryu.setAnimation("kick", 1);
+                }
+
+                function bigKick () {
+                    ryu.setAnimation("bigKick", 1);
+                }
+
+                function hadouken () {
+                    ryu.setAnimation("hadouken", 1);
+                }
+
+                function tatsumaki () {
+                    ryu.setAnimation('tatsumaki', 1, function() {
+                        ryu.setAnimation('wait');
+                    });
+                }
+
+                function setSpriteAnimation(params) {
+                    var anim = [];                  
+                    var x = params.startx;
+                    var y = params.starty;
+                    if (typeof params.xMove == 'undefined')
+                        params.xMove = params.width;
+                    if (typeof params.yMove == 'undefined')
+                        params.yMove = params.height;
+                    for (var i = 0; i < params.size; i++) {
+                        anim.push({
+                            x : x,
+                            y : y,
+                            width: params.width,
+                            height: params.height
+                        });
+                        x += params.xMove;
+                        y += params.yMove;
+                    }
+                    return anim;
+                }
+
+
+                // Create instance of imgManager
+                WCP.Assets.add("ryu", "ressources/hadouken/evilryu.png");
+                WCP.Assets.load('*', null, function() {
+                    var animationSceneDefinition = {
+                        init: function () {
+                            ryu = new WCP.Sprite(WCP.Assets.get("ryu"), 20, 30);
+                            ryu.setSlice(2, 9, 26, 38);
+                            ryu.animations({
+                                timeRate: 90,
+                                wait: setSpriteAnimation({
+                                    startx : 10,
+                                    starty : 0,
+                                    yMove : 0,
+                                    width : 45,
+                                    height : 48,
+                                    size : 4,
+                                }),
+                                punch: [{
+                                    x: 10,
+                                    y: 60,
+                                    width: 45,
+                                    height: 48
+                                },
+                                {
+                                    x: 55,
+                                    y: 60,
+                                    width: 55,
+                                    height: 48
+                                }],
+                                bigPunch: [{
+                                    x: 120,
+                                    y: 60,
+                                    width: 50,
+                                    height: 48
+                                },
+                                {
+                                    x: 170,
+                                    y: 60,
+                                    width: 45,
+                                    height: 48
+                                },
+                                {
+                                    x: 215,
+                                    y: 60,
+                                    width: 70,
+                                    height: 48
+                                }
+                                ],
+                                kick: [{
+                                    x: 350,
+                                    y: 60,
+                                    width: 40,
+                                    height: 48
+                                },
+                                {
+                                    x: 390,
+                                    y: 60,
+                                    width: 60,
+                                    height: 48
+                                }],
+                                bigKick: [{
+                                    x: 260,
+                                    y: 255,
+                                    width: 45,
+                                    height: 48
+                                },
+                                {
+                                    x: 300,
+                                    y: 255,
+                                    width: 65,
+                                    height: 48
+                                },
+                                {
+                                    x: 365,
+                                    y: 255,
+                                    width: 60,
+                                    height: 48
+                                }
+                                ],
+                                hadouken : [{
+                                    x: 10,
+                                    y: 368,
+                                    width: 45,
+                                    height: 48
+                                },
+                                {
+                                    x: 55,
+                                    y: 368,
+                                    width: 50,
+                                    height: 48
+                                },
+                                {
+                                    x: 120,
+                                    y: 368,
+                                    width: 60,
+                                    height: 48
+                                }],
+                                tatsumaki : [{
+                                    x: 10,
+                                    y: 490,
+                                    width: 40,
+                                    height: 63
+                                },
+                                {
+                                    x: 50,
+                                    y: 490,
+                                    width: 30,
+                                    height: 70
+                                },
+                                {
+                                    x: 80,
+                                    y: 490,
+                                    width: 55,
+                                    height: 65
+                                },
+                                {
+                                    x: 135,
+                                    y: 490,
+                                    width: 38,
+                                    height: 63
+                                },
+                                {
+                                    x: 135,
+                                    y: 490,
+                                    width: 38,
+                                    height: 63
+                                },
+                                ]
+                            });
+                            ryu.setAnimation('wait');
+                            myEventManager.keydown('k', kick);
+                            myEventManager.keydown('p', punch);
+                            myEventManager.combo('left p', bigPunch);
+                            myEventManager.combo('right k', bigKick);
+                            myEventManager.sequence('down right p', hadouken);
+                            myEventManager.sequence('down left k', tatsumaki);
+                        },
+                        
+                        loop: function () {
+
+                        }
+                    };
+                                        
+                    var animationScene = new WCP.View(animationSceneDefinition);
+                    
+                    animationScene.start();
+                });
+           })();
+           </script>
+    </body>
+</html>
