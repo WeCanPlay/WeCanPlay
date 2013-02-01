@@ -33,7 +33,7 @@
     <div class="container">
         <div class="jumbotron subhead">
             <h1>Ryu</h1>
-            <canvas id="canvas" style="background-color: #bcbcbc;"></canvas>
+            <canvas id="canvas" style="background-color: #bcbcbc; zoom: 200%;"></canvas>
             <div class='well'>
                 This demo allows you to try the different kind of events offered by WeCanPlay.
                 <br/>
@@ -55,7 +55,7 @@
 
                 // Set Canvas and lib' options
                 var cx = 200;
-                var cy = 150;
+                var cy = 200;
                 WCP.setCanvas("canvas", cx, cy);
                 var canvas = document.getElementById("canvas");
 
@@ -146,7 +146,7 @@
                             soundManager.channel(WCP.Assets.get('punch'), {id: 'punch', autoplay: false, loop: false, volume: 100});
                             soundManager.channel(WCP.Assets.get('kick'), {id: 'kick', autoplay: false, loop: false, volume: 100});
                             soundManager.channel(WCP.Assets.get('bigKick'), {id: 'bigKick', autoplay: false, loop: false, volume: 100});
-                            ryu = new WCP.Sprite(WCP.Assets.get("ryu"), 20, 30);
+                            ryu = new WCP.Sprite(WCP.Assets.get("ryu"), 80, 70);
                             ryu.setSlice(2, 9, 26, 38);
                             ryu.animations({
                                 timeRate: 110,
