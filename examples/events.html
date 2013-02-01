@@ -62,6 +62,7 @@
                 MyEventManager = function () {};
                 WCP.EventTarget.extend(MyEventManager);
                 var myEventManager = new MyEventManager();
+                var soundManager = new WCP.SoundManager();
                 myEventManager.listen();
                 myEventManager.register(WCP.Animation);
                 
@@ -72,25 +73,31 @@
 
                 function punch () {
                     ryu.setAnimation("punch", 1);
+                    soundManager.get('punch').play();
                 }
 
                 function bigPunch () {
                     ryu.setAnimation("bigPunch", 1);
+                    soundManager.get('bigPunch').play();
                 }
 
                 function kick () {
                     ryu.setAnimation("kick", 1);
+                    soundManager.get('punch').play();
                 }
 
                 function bigKick () {
                     ryu.setAnimation("bigKick", 1);
+                    soundManager.get('bigKick').play();
                 }
 
                 function hadouken () {
                     ryu.setAnimation("hadouken", 1);
+                    soundManager.get('hadouken').play();
                 }
 
                 function tatsumaki () {
+                    soundManager.get('tatsumaki').play();
                     ryu.setAnimation('tatsumaki', 1, function() {
                         ryu.setAnimation('wait');
                     });
@@ -117,12 +124,28 @@
                     return anim;
                 }
 
-
                 // Create instance of imgManager
                 WCP.Assets.add("ryu", "ressources/hadouken/evilryu.png");
+                WCP.Assets.add({
+                    path: 'ressources/hadouken/sound/',
+                    assets: {
+                        'hadouken': ['hadouken.mp3','hadouken.ogg'],
+                        'tatsumaki': ['tatsumaki.mp3','tatsumaki.ogg'],
+                        'kick': ['kick.mp3','kick.ogg'],
+                        'bigKick': ['bigKick.mp3','bigKick.ogg'],
+                        'punch': ['punch.mp3','punch.ogg'],
+                        'bigPunch': ['bigPunch.mp3','bigPunch.ogg']                        
+                    }
+                });
                 WCP.Assets.load('*', null, function() {
                     var animationSceneDefinition = {
                         init: function () {
+                            soundManager.channel(WCP.Assets.get('hadouken'), {id: 'hadouken', autoplay: false, loop: false, volume: 100});
+                            soundManager.channel(WCP.Assets.get('tatsumaki'), {id: 'tatsumaki', autoplay: false, loop: false, volume: 100});
+                            soundManager.channel(WCP.Assets.get('bigPunch'), {id: 'bigPunch', autoplay: false, loop: false, volume: 100});
+                            soundManager.channel(WCP.Assets.get('punch'), {id: 'punch', autoplay: false, loop: false, volume: 100});
+                            soundManager.channel(WCP.Assets.get('kick'), {id: 'kick', autoplay: false, loop: false, volume: 100});
+                            soundManager.channel(WCP.Assets.get('bigKick'), {id: 'bigKick', autoplay: false, loop: false, volume: 100});
                             ryu = new WCP.Sprite(WCP.Assets.get("ryu"), 20, 30);
                             ryu.setSlice(2, 9, 26, 38);
                             ryu.animations({
