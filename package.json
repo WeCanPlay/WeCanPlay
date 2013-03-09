@@ -6,6 +6,9 @@
   "license": "MIT",
   "readmeFilename": "README.md",
 	"dependencies": {
-		"grunt": "0.3.x"
+		"grunt": "0.4.x"
+	},
+	"scripts": {
+		"grunt": "node_modules/.bin/grunt"
 	}
 }

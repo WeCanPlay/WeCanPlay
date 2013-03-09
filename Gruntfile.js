@@ -7,7 +7,7 @@
 
 module.exports = function (grunt) {
     "use strict";
-    
+   
     // Project configuration.
     var config = {
         pkg: {
